@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:scrollbarStyle="outsideOverlay">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/movieListConstraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".presentation.pages.movie_list.TrendingMovieListFragment">
+
+        <include
+            android:id="@+id/customToolbar"
+            layout="@layout/custom_toolbar"
+            app:layout_constraintBottom_toTopOf="@+id/upcomingMoviesListTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/upcomingMoviesListTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="10dp"
+            android:fontFamily="More Fonts..."
+            android:text="Upcoming Movies"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/upcomingMoviesLayout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/customToolbar" />
+
+        <include
+            android:id="@+id/upcomingMoviesLayout"
+            layout="@layout/layout_upcomning_movies"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:layout_marginStart="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/upcomingMoviesListTitle" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
