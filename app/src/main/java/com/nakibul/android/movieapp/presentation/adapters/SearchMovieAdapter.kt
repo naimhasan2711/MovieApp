@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
@@ -20,22 +21,25 @@ class SearchMovieAdapter(
     val onItemClickListener: (TrendingMovie) -> Unit,
     val onSaveButtonClickListener: (TrendingMovie) -> Unit
 ) : RecyclerView.Adapter<SearchMovieAdapter.ViewHolder>() {
+
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
         private var title: TextView = itemView.findViewById(R.id.trendingMovieLinearListItemTitle)
         private var rate: TextView = itemView.findViewById(R.id.trendingMovieLinearListItemRate)
-        private var poster: ImageView =
-            itemView.findViewById(R.id.trendingMovieLinearListItemPoster)
+        private var poster: ImageView = itemView.findViewById(R.id.trendingMovieLinearListItemPoster)
         private var saveBtn: ImageView = itemView.findViewById(R.id.trendingMovieListSaveBtn)
 
         init {
+
+
             itemView.setOnClickListener {
-                val position = onItemClickListener.invoke(movies[position])
+                val position = adapterPosition
+                onItemClickListener.invoke(movies[position])
             }
-
             saveBtn.setOnClickListener {
-                val position = onSaveButtonClickListener.invoke(movies[position])
+                val position = adapterPosition
+                onSaveButtonClickListener.invoke(movies[position])
             }
-
         }
 
         fun bind(item: TrendingMovie) {
@@ -45,21 +49,26 @@ class SearchMovieAdapter(
             var url = ""
             var requestOptions = RequestOptions()
 
+
             if (item.isSaved) {
                 saveBtn.setImageResource(R.drawable.ic_saved)
             } else {
                 saveBtn.setImageResource(R.drawable.ic_unsaved)
             }
 
+
             when (currentLayoutMode) {
                 1 -> {
+
                     url = "${Constants.BASE_URL_IMAGE_PATH}${item.posterPath}"
+
                     requestOptions = RequestOptions().transform(CircleCrop(), RoundedCorners(50))
                 }
 
                 2 -> {
                     url = "${Constants.BASE_URL_IMAGE_PATH}${item.backdropPath}"
-                    requestOptions = RequestOptions().transform(CircleCrop())
+
+                    requestOptions = RequestOptions().transform(CenterCrop())
                 }
             }
 
@@ -70,15 +79,18 @@ class SearchMovieAdapter(
                 .placeholder(R.drawable.ic_film_reel)
                 .error(R.drawable.ic_film_reel)
                 .into(poster)
-        }
-    }
 
+        }
+
+    }
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): ViewHolder {
 
         val layoutInflater = LayoutInflater.from(parent.context)
+
+
 
         return if (viewType == VIEW_TYPE_GRID) {
             Log.i("Adapter", "VIEW_TYPE_LINEAR")
@@ -94,22 +106,11 @@ class SearchMovieAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: SearchMovieAdapter.ViewHolder, position: Int) {
-        TODO("Not yet implemented")
-    }
+    override fun getItemCount(): Int = movies.size
 
-    override fun getItemCount(): Int {
-        return movies.size
-    }
 
-    private companion object {
-        const val VIEW_TYPE_GRID = 1
-        const val VIEW_TYPE_LINEAR = 2
-    }
-
-    private var currentLayoutMode = VIEW_TYPE_GRID
-    override fun getItemViewType(position: Int): Int {
-        return currentLayoutMode
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(movies[position])
     }
 
     fun updateMovieSavedStatus(movieId: Int, isSaved: Boolean) {
@@ -120,5 +121,19 @@ class SearchMovieAdapter(
             movies[position].isSaved = isSaved
             notifyItemChanged(position)
         }
+    }
+
+
+
+    private companion object {
+        const val VIEW_TYPE_GRID = 1
+        const val VIEW_TYPE_LINEAR = 2
+    }
+
+
+    private var currentLayoutMode = VIEW_TYPE_GRID
+
+    override fun getItemViewType(position: Int): Int {
+        return currentLayoutMode
     }
 }

@@ -51,9 +51,9 @@ class MovieListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setInit()
+        setOnClickListeners()
         setConnection()
         observeData()
-        setOnClickListeners()
     }
 
     private fun setConnection() {
@@ -83,24 +83,26 @@ class MovieListFragment : Fragment() {
 
         binding.customToolbar.searchView.setOnQueryTextFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
+
                 setViewsInSearching()
             } else {
                 setViewsAfterSearching()
                 binding.trendingMoviesRecyclerView.adapter = moviesPagerAdapter
             }
-
         }
 
         binding.customToolbar.searchView.setOnQueryTextListener(object :
             SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(p0: String?): Boolean {
+            override fun onQueryTextSubmit(query: String?): Boolean {
                 return true
             }
 
-            override fun onQueryTextChange(query: String?): Boolean {
+            override fun onQueryTextChange(newText: String?): Boolean {
+
                 viewLifecycleOwner.lifecycleScope.launch {
-                    movieListViewModel.searchedMovie(queryText = query!!)
+                    movieListViewModel.searchedMovie(queryText = newText!!)
                 }
+
                 return true
             }
 
@@ -113,6 +115,7 @@ class MovieListFragment : Fragment() {
 
         binding.nowPlayingMoviesLayout.root.visibility = View.VISIBLE
         binding.nowPlayingMovieListTitle.visibility = View.VISIBLE
+
 
         val nowPlayingLayout: View = requireActivity().findViewById(R.id.nowPlayingMoviesLayout)
         val params = binding.trendinggMoviesListTitle.layoutParams as ConstraintLayout.LayoutParams
@@ -129,6 +132,7 @@ class MovieListFragment : Fragment() {
         binding.nowPlayingMovieListTitle.visibility = View.GONE
 
         val toolbar: View = requireActivity().findViewById(R.id.customToolbar)
+
         val params = binding.trendinggMoviesListTitle.layoutParams as ConstraintLayout.LayoutParams
         params.topToBottom = toolbar.id
         params.setMargins(10, 10, 10, 10)
@@ -308,6 +312,7 @@ class MovieListFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             movieListViewModel.searchedMovieListState.collect {
                 when (it.status) {
+
                     Status.LOADING -> {
                         binding.progressBarTrendingMovies.visibility = View.VISIBLE
                         binding.trendingMoviesRecyclerView.visibility = View.GONE
@@ -316,22 +321,25 @@ class MovieListFragment : Fragment() {
                     Status.SUCCESS -> {
                         binding.progressBarTrendingMovies.visibility = View.GONE
                         binding.trendingMoviesRecyclerView.visibility = View.VISIBLE
-                        it.data?.let { searchMovieList ->
+
+                        it.data.let { searchedMovieList ->
                             searchMovieAdapter = SearchMovieAdapter(
-                                searchMovieList,
+                                movies = searchedMovieList!!,
                                 onSaveButtonClickListener = { trendingMovie ->
 
                                 },
                                 onItemClickListener = { trendingMovie ->
                                     onMovieItemClicked(movieId = trendingMovie.id)
-                                }
-                            )
+                                })
+
+                            binding.trendingMoviesRecyclerView.adapter = searchMovieAdapter
                         }
                     }
 
                     Status.ERROR -> {
 
                     }
+
                 }
             }
         }
@@ -352,6 +360,9 @@ class MovieListFragment : Fragment() {
     private fun setInit() {
 
         binding.apply {
+            trendingMoviesRecyclerView.apply {
+                layoutManager = LinearLayoutManager(requireContext())
+            }
 
             upcomingMoviesLayout.upcomingMoviesRecyclerView.layoutManager = LinearLayoutManager(
                 requireContext(),
@@ -364,20 +375,17 @@ class MovieListFragment : Fragment() {
                 LinearLayoutManager.HORIZONTAL,
                 false
             )
-
-            trendingMoviesRecyclerView.apply {
-                layoutManager = LinearLayoutManager(requireContext())
-            }
-
-            moviesPagerAdapter = MoviesPagerAdapter(onItemClickListener = {
-                onMovieItemClicked(movieId = it.id)
-            },
-                onSaveButtonClickListener = {
-
-                })
-            binding.trendingMoviesRecyclerView.adapter = moviesPagerAdapter
-
         }
+
+        moviesPagerAdapter = MoviesPagerAdapter(onItemClickListener = {
+            onMovieItemClicked(movieId = it.id)
+        },
+            onSaveButtonClickListener = {
+
+            }
+        )
+
+        binding.trendingMoviesRecyclerView.adapter = moviesPagerAdapter
 
     }
 
