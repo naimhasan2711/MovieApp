@@ -124,26 +124,36 @@ class MovieListFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            movieListViewModel.nowPlayingMovieListState.collect{
-                when(it.status){
-                    Status.LOADING->{
-                        binding.nowPlayingMoviesLayout.progressBarNowPlayingMovies.visibility = View.VISIBLE
-                        binding.nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.visibility = View.GONE
+            movieListViewModel.nowPlayingMovieListState.collect {
+                when (it.status) {
+                    Status.LOADING -> {
+                        binding.nowPlayingMoviesLayout.progressBarNowPlayingMovies.visibility =
+                            View.VISIBLE
+                        binding.nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.visibility =
+                            View.GONE
                     }
-                    Status.SUCCESS->{
-                        binding.nowPlayingMoviesLayout.progressBarNowPlayingMovies.visibility = View.GONE
-                        binding.nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.visibility = View.VISIBLE
 
-                        it.data?.let { nowPlayingMovies->
-                            nowPlayingMoviesAdapter = NowPlayingMoviesAdapter(nowPlayingMovies){
-                                onMovieItemClicked(it.id)
-                            }
+                    Status.SUCCESS -> {
+                        binding.nowPlayingMoviesLayout.progressBarNowPlayingMovies.visibility =
+                            View.GONE
+                        binding.nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.visibility =
+                            View.VISIBLE
+
+                        it.data?.let { nowPlayingMovies ->
+                            nowPlayingMoviesAdapter =
+                                NowPlayingMoviesAdapter(nowPlayingMovies) { nowPlayingMovie ->
+                                    onMovieItemClicked(nowPlayingMovie.id)
+                                }
                         }
-                        binding.nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.adapter = nowPlayingMoviesAdapter
+                        binding.nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.adapter =
+                            nowPlayingMoviesAdapter
                     }
-                    Status.ERROR->{
-                        binding.nowPlayingMoviesLayout.progressBarNowPlayingMovies.visibility = View.GONE
-                        binding.nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.visibility = View.GONE
+
+                    Status.ERROR -> {
+                        binding.nowPlayingMoviesLayout.progressBarNowPlayingMovies.visibility =
+                            View.GONE
+                        binding.nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.visibility =
+                            View.GONE
                         binding.upcomingMoviesListTitle.visibility = View.GONE
                     }
                 }
