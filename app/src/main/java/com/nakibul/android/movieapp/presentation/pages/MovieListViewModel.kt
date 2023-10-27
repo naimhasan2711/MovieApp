@@ -3,7 +3,6 @@ package com.nakibul.android.movieapp.presentation.pages
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.nakibul.android.movieapp.data.remote.repository.MovieRemoteRepository

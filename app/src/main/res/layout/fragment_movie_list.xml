@@ -42,10 +42,11 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/nowPlayingMovieListTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/upcomingMoviesListTitle" />
+
         <TextView
             android:id="@+id/nowPlayingMovieListTitle"
             android:layout_width="match_parent"
@@ -69,10 +70,37 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_marginStart="5dp"
-            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/trendinggMoviesListTitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/nowPlayingMovieListTitle" />
+
+
+        <TextView
+            android:id="@+id/trendinggMoviesListTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="40dp"
+            android:fontFamily="@font/livvic_medium"
+            android:text="Trending Movies"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/trendingMoviesRecyclerView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/nowPlayingMoviesLayout" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/trendingMoviesRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/trendinggMoviesListTitle" />
+
         <ProgressBar
             android:id="@+id/progressBarTrendingMovies"
             android:layout_width="wrap_content"
@@ -84,6 +112,28 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+
+        <Button
+            android:layout_marginTop="20dp"
+            android:id="@+id/btnRetry"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Retry"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/customToolbar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvError"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/livvic_medium"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnRetry"
+            tools:text="Something went wrong" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

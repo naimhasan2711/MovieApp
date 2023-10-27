@@ -3,11 +3,11 @@ package com.nakibul.android.movieapp
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
@@ -17,7 +17,6 @@ import com.nakibul.android.movieapp.presentation.adapters.NowPlayingMoviesAdapte
 import com.nakibul.android.movieapp.presentation.adapters.UpcomingMoviesAdapter
 import com.nakibul.android.movieapp.presentation.pages.MovieListViewModel
 import com.nakibul.android.movieapp.utils.NetworkUtils
-import com.nakibul.android.movieapp.utils.PagerMovieListState
 import com.nakibul.android.movieapp.utils.Status
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch

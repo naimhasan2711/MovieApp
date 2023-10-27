@@ -1,7 +1,6 @@
 package com.nakibul.android.movieapp.data.remote.repository
 
 import android.util.Log
-import android.view.View
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData

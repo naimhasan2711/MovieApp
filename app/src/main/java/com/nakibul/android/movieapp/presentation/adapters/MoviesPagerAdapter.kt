@@ -1,11 +1,9 @@
 package com.nakibul.android.movieapp.presentation.adapters
 
-import android.accessibilityservice.AccessibilityButtonController.AccessibilityButtonCallback
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView.OnItemClickListener
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.paging.PagingDataAdapter
@@ -16,7 +14,6 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
-import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener
 import com.nakibul.android.movieapp.R
 import com.nakibul.android.movieapp.domain.models.TrendingMovie
 import com.nakibul.android.movieapp.utils.Constants

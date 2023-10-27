@@ -1,7 +1,5 @@
 package com.nakibul.android.movieapp.domain.models
 
-import com.nakibul.android.movieapp.domain.models.Genre
-
 data class MovieDetail(
 
     val id: Int,

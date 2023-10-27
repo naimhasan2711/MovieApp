@@ -1,7 +1,6 @@
 package com.nakibul.android.movieapp.utils
 
 import androidx.paging.PagingData
-import com.nakibul.android.movieapp.data.remote.models.response.TrendingMovieResponse
 import com.nakibul.android.movieapp.domain.models.TrendingMovie
 import kotlinx.coroutines.flow.Flow
 
