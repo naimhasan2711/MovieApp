@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.nakibul.android.movieapp.databinding.FragmentMovieListBinding
+import com.nakibul.android.movieapp.presentation.adapters.NowPlayingMoviesAdapter
 import com.nakibul.android.movieapp.presentation.adapters.UpcomingMoviesAdapter
 import com.nakibul.android.movieapp.presentation.pages.MovieListViewModel
 import com.nakibul.android.movieapp.utils.NetworkUtils
@@ -28,6 +29,7 @@ class MovieListFragment : Fragment() {
     private val movieListViewModel: MovieListViewModel by viewModels()
 
     private lateinit var upcomingMoviesAdapter: UpcomingMoviesAdapter
+    private lateinit var nowPlayingMoviesAdapter: NowPlayingMoviesAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -55,10 +57,14 @@ class MovieListFragment : Fragment() {
     private fun onConnectionAvailable() {
         movieListViewModel.apply {
             getAllUpComingMovies()
+            getAllNowPlayingMovies()
         }
         binding.apply {
             upcomingMoviesLayout.root.visibility = View.VISIBLE
             upcomingMoviesListTitle.visibility = View.VISIBLE
+
+            nowPlayingMoviesLayout.root.visibility = View.VISIBLE
+            nowPlayingMovieListTitle.visibility = View.VISIBLE
         }
     }
 
@@ -66,6 +72,10 @@ class MovieListFragment : Fragment() {
         binding.apply {
             upcomingMoviesLayout.root.visibility = View.GONE
             upcomingMoviesListTitle.visibility = View.GONE
+
+            nowPlayingMoviesLayout.root.visibility = View.GONE
+            nowPlayingMovieListTitle.visibility = View.GONE
+
 
         }
 
@@ -113,6 +123,33 @@ class MovieListFragment : Fragment() {
             }
         }
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            movieListViewModel.nowPlayingMovieListState.collect{
+                when(it.status){
+                    Status.LOADING->{
+                        binding.nowPlayingMoviesLayout.progressBarNowPlayingMovies.visibility = View.VISIBLE
+                        binding.nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.visibility = View.GONE
+                    }
+                    Status.SUCCESS->{
+                        binding.nowPlayingMoviesLayout.progressBarNowPlayingMovies.visibility = View.GONE
+                        binding.nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.visibility = View.VISIBLE
+
+                        it.data?.let { nowPlayingMovies->
+                            nowPlayingMoviesAdapter = NowPlayingMoviesAdapter(nowPlayingMovies){
+                                onMovieItemClicked(it.id)
+                            }
+                        }
+                        binding.nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.adapter = nowPlayingMoviesAdapter
+                    }
+                    Status.ERROR->{
+                        binding.nowPlayingMoviesLayout.progressBarNowPlayingMovies.visibility = View.GONE
+                        binding.nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.visibility = View.GONE
+                        binding.upcomingMoviesListTitle.visibility = View.GONE
+                    }
+                }
+            }
+        }
+
     }
 
     private fun onMovieItemClicked(movieId: Int) {
@@ -131,6 +168,12 @@ class MovieListFragment : Fragment() {
         binding.apply {
 
             upcomingMoviesLayout.upcomingMoviesRecyclerView.layoutManager = LinearLayoutManager(
+                requireContext(),
+                LinearLayoutManager.HORIZONTAL,
+                false
+            )
+
+            nowPlayingMoviesLayout.nowPlayingMoviesRecyclerView.layoutManager = LinearLayoutManager(
                 requireContext(),
                 LinearLayoutManager.HORIZONTAL,
                 false
