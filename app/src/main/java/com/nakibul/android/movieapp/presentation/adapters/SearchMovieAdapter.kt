@@ -15,11 +15,11 @@ import com.nakibul.android.movieapp.R
 import com.nakibul.android.movieapp.domain.models.TrendingMovie
 import com.nakibul.android.movieapp.utils.Constants
 
-class TrendingMoviesAdapter(
+class SearchMovieAdapter(
     var movies: List<TrendingMovie>,
     val onItemClickListener: (TrendingMovie) -> Unit,
     val onSaveButtonClickListener: (TrendingMovie) -> Unit
-) : RecyclerView.Adapter<TrendingMoviesAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<SearchMovieAdapter.ViewHolder>() {
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private var title: TextView = itemView.findViewById(R.id.trendingMovieLinearListItemTitle)
         private var rate: TextView = itemView.findViewById(R.id.trendingMovieLinearListItemRate)
@@ -94,7 +94,7 @@ class TrendingMoviesAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: TrendingMoviesAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: SearchMovieAdapter.ViewHolder, position: Int) {
         TODO("Not yet implemented")
     }
 

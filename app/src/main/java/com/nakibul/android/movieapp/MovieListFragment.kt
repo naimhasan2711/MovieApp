@@ -6,6 +6,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SearchView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.nakibul.android.movieapp.databinding.FragmentMovieListBinding
 import com.nakibul.android.movieapp.presentation.adapters.MoviesPagerAdapter
 import com.nakibul.android.movieapp.presentation.adapters.NowPlayingMoviesAdapter
+import com.nakibul.android.movieapp.presentation.adapters.SearchMovieAdapter
 import com.nakibul.android.movieapp.presentation.adapters.UpcomingMoviesAdapter
 import com.nakibul.android.movieapp.presentation.pages.MovieListViewModel
 import com.nakibul.android.movieapp.utils.NetworkUtils
@@ -29,17 +32,18 @@ import kotlinx.coroutines.launch
 class MovieListFragment : Fragment() {
 
     private lateinit var binding: FragmentMovieListBinding
+
     private val movieListViewModel: MovieListViewModel by viewModels()
 
     private lateinit var upcomingMoviesAdapter: UpcomingMoviesAdapter
     private lateinit var nowPlayingMoviesAdapter: NowPlayingMoviesAdapter
 
     private lateinit var moviesPagerAdapter: MoviesPagerAdapter
+    private lateinit var searchMovieAdapter: SearchMovieAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
+    ): View {
         binding = FragmentMovieListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -76,6 +80,59 @@ class MovieListFragment : Fragment() {
         binding.customToolbar.changeLayoutBtn.setOnClickListener {
             changeLayout()
         }
+
+        binding.customToolbar.searchView.setOnQueryTextFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                setViewsInSearching()
+            } else {
+                setViewsAfterSearching()
+                binding.trendingMoviesRecyclerView.adapter = moviesPagerAdapter
+            }
+
+        }
+
+        binding.customToolbar.searchView.setOnQueryTextListener(object :
+            SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(p0: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(query: String?): Boolean {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    movieListViewModel.searchedMovie(queryText = query!!)
+                }
+                return true
+            }
+
+        })
+    }
+
+    private fun setViewsAfterSearching() {
+        binding.upcomingMoviesLayout.root.visibility = View.VISIBLE
+        binding.upcomingMoviesListTitle.visibility = View.VISIBLE
+
+        binding.nowPlayingMoviesLayout.root.visibility = View.VISIBLE
+        binding.nowPlayingMovieListTitle.visibility = View.VISIBLE
+
+        val nowPlayingLayout: View = requireActivity().findViewById(R.id.nowPlayingMoviesLayout)
+        val params = binding.trendinggMoviesListTitle.layoutParams as ConstraintLayout.LayoutParams
+        params.topToBottom = nowPlayingLayout.id
+        params.setMargins(10, 40, 10, 10)
+        binding.trendinggMoviesListTitle.requestLayout()
+    }
+
+    private fun setViewsInSearching() {
+        binding.upcomingMoviesLayout.root.visibility = View.GONE
+        binding.upcomingMoviesListTitle.visibility = View.GONE
+
+        binding.nowPlayingMoviesLayout.root.visibility = View.GONE
+        binding.nowPlayingMovieListTitle.visibility = View.GONE
+
+        val toolbar: View = requireActivity().findViewById(R.id.customToolbar)
+        val params = binding.trendinggMoviesListTitle.layoutParams as ConstraintLayout.LayoutParams
+        params.topToBottom = toolbar.id
+        params.setMargins(10, 10, 10, 10)
+        binding.trendinggMoviesListTitle.requestLayout()
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -248,6 +305,37 @@ class MovieListFragment : Fragment() {
             }
         }
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            movieListViewModel.searchedMovieListState.collect {
+                when (it.status) {
+                    Status.LOADING -> {
+                        binding.progressBarTrendingMovies.visibility = View.VISIBLE
+                        binding.trendingMoviesRecyclerView.visibility = View.GONE
+                    }
+
+                    Status.SUCCESS -> {
+                        binding.progressBarTrendingMovies.visibility = View.GONE
+                        binding.trendingMoviesRecyclerView.visibility = View.VISIBLE
+                        it.data?.let { searchMovieList ->
+                            searchMovieAdapter = SearchMovieAdapter(
+                                searchMovieList,
+                                onSaveButtonClickListener = { trendingMovie ->
+
+                                },
+                                onItemClickListener = { trendingMovie ->
+                                    onMovieItemClicked(movieId = trendingMovie.id)
+                                }
+                            )
+                        }
+                    }
+
+                    Status.ERROR -> {
+
+                    }
+                }
+            }
+        }
+
     }
 
     private fun onMovieItemClicked(movieId: Int) {
@@ -291,6 +379,12 @@ class MovieListFragment : Fragment() {
 
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setConnection()
+        binding.trendingMoviesRecyclerView.adapter = moviesPagerAdapter
     }
 
 }
