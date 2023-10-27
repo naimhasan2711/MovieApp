@@ -11,14 +11,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.nakibul.android.movieapp.databinding.FragmentMovieListBinding
+import com.nakibul.android.movieapp.presentation.adapters.MoviesPagerAdapter
 import com.nakibul.android.movieapp.presentation.adapters.NowPlayingMoviesAdapter
 import com.nakibul.android.movieapp.presentation.adapters.UpcomingMoviesAdapter
 import com.nakibul.android.movieapp.presentation.pages.MovieListViewModel
 import com.nakibul.android.movieapp.utils.NetworkUtils
+import com.nakibul.android.movieapp.utils.PagerMovieListState
 import com.nakibul.android.movieapp.utils.Status
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -29,6 +33,8 @@ class MovieListFragment : Fragment() {
 
     private lateinit var upcomingMoviesAdapter: UpcomingMoviesAdapter
     private lateinit var nowPlayingMoviesAdapter: NowPlayingMoviesAdapter
+
+    private lateinit var moviesPagerAdapter: MoviesPagerAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -43,6 +49,7 @@ class MovieListFragment : Fragment() {
         setInit()
         setConnection()
         observeData()
+        setOnClickListeners()
     }
 
     private fun setConnection() {
@@ -53,10 +60,47 @@ class MovieListFragment : Fragment() {
         }
     }
 
+    private fun retryButtonClick() {
+        if (NetworkUtils.isNetworkAvailable(requireContext())) {
+            onConnectionAvailable()
+        } else {
+            onConnectionUnavailable()
+        }
+    }
+
+    private fun setOnClickListeners() {
+        binding.btnRetry.setOnClickListener {
+            retryButtonClick()
+        }
+
+        binding.customToolbar.changeLayoutBtn.setOnClickListener {
+            changeLayout()
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun changeLayout() {
+        val layoutManager = binding.trendingMoviesRecyclerView.layoutManager
+
+        if (layoutManager is GridLayoutManager) {
+            binding.trendingMoviesRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+            moviesPagerAdapter.switchToGridMode()
+            moviesPagerAdapter.notifyDataSetChanged()
+            binding.customToolbar.changeLayoutBtn.setBackgroundResource(R.drawable.ic_grid_view)
+        } else if (layoutManager is LinearLayoutManager) {
+            binding.trendingMoviesRecyclerView.layoutManager =
+                GridLayoutManager(requireContext(), 2)
+            moviesPagerAdapter.switchToLinearMode()
+            moviesPagerAdapter.notifyDataSetChanged()
+            binding.customToolbar.changeLayoutBtn.setBackgroundResource(R.drawable.ic_linear_view)
+        }
+    }
+
     private fun onConnectionAvailable() {
         movieListViewModel.apply {
             getAllUpComingMovies()
             getAllNowPlayingMovies()
+            loadTrendingMovieList()
         }
         binding.apply {
             upcomingMoviesLayout.root.visibility = View.VISIBLE
@@ -64,6 +108,13 @@ class MovieListFragment : Fragment() {
 
             nowPlayingMoviesLayout.root.visibility = View.VISIBLE
             nowPlayingMovieListTitle.visibility = View.VISIBLE
+
+            btnRetry.visibility = View.GONE
+            tvError.visibility = View.GONE
+
+            progressBarTrendingMovies.visibility = View.GONE
+            trendingMoviesRecyclerView.visibility = View.VISIBLE
+            trendinggMoviesListTitle.visibility = View.VISIBLE
         }
     }
 
@@ -75,6 +126,12 @@ class MovieListFragment : Fragment() {
             nowPlayingMoviesLayout.root.visibility = View.GONE
             nowPlayingMovieListTitle.visibility = View.GONE
 
+            btnRetry.visibility = View.VISIBLE
+            tvError.visibility = View.VISIBLE
+
+            progressBarTrendingMovies.visibility = View.GONE
+            trendingMoviesRecyclerView.visibility = View.GONE
+            trendinggMoviesListTitle.visibility = View.GONE
 
         }
 
@@ -159,6 +216,38 @@ class MovieListFragment : Fragment() {
             }
         }
 
+        viewLifecycleOwner.lifecycleScope.launch {
+            movieListViewModel.pagerMovieListState.collect { state ->
+
+                when (state) {
+                    is PagerMovieListState.Loading -> {
+                        binding.progressBarTrendingMovies.visibility = View.VISIBLE
+                        binding.trendingMoviesRecyclerView.visibility = View.GONE
+                        binding.btnRetry.visibility = View.GONE
+                        binding.tvError.visibility = View.GONE
+                    }
+
+                    is PagerMovieListState.Success -> {
+                        binding.progressBarTrendingMovies.visibility = View.GONE
+                        binding.trendingMoviesRecyclerView.visibility = View.VISIBLE
+                        binding.btnRetry.visibility = View.GONE
+                        binding.tvError.visibility = View.GONE
+
+                        state.pagingData.collectLatest {
+                            moviesPagerAdapter.submitData(it)
+                        }
+                    }
+
+                    is PagerMovieListState.Error -> {
+                        binding.progressBarTrendingMovies.visibility = View.GONE
+                        binding.trendingMoviesRecyclerView.visibility = View.GONE
+                        binding.btnRetry.visibility = View.VISIBLE
+                        binding.tvError.visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
+
     }
 
     private fun onMovieItemClicked(movieId: Int) {
@@ -187,6 +276,18 @@ class MovieListFragment : Fragment() {
                 LinearLayoutManager.HORIZONTAL,
                 false
             )
+
+            trendingMoviesRecyclerView.apply {
+                layoutManager = LinearLayoutManager(requireContext())
+            }
+
+            moviesPagerAdapter = MoviesPagerAdapter(onItemClickListener = {
+                onMovieItemClicked(movieId = it.id)
+            },
+                onSaveButtonClickListener = {
+
+                })
+            binding.trendingMoviesRecyclerView.adapter = moviesPagerAdapter
 
         }
 
