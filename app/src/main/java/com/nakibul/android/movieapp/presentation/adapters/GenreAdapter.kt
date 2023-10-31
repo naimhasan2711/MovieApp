@@ -12,7 +12,7 @@ class GenreAdapter(private val genres: List<Genre>) :
     RecyclerView.Adapter<GenreAdapter.ViewHolder>() {
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        val genreName: TextView = itemView.findViewById(R.id.genresItemName)
+        private val genreName: TextView = itemView.findViewById(R.id.genresItemName)
 
         fun bind(item: Genre) {
             genreName.text = item.name
